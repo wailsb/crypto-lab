@@ -2,55 +2,51 @@
 #include <iostream> 
 #include <cstring> 
 using namespace std;
-
 // Function to encrypt the text using the affine cipher
-
 char *affineCrypt(affine* aff) {
     while (gcd(aff->a, 26) != 1)
     {
-            cout << "a and 26 are not coprime. Please enter a different value for a: ";
-            cin >> aff->a;
+        cout << "a and 26 are not coprime. Please enter a different value for a: ";
+        cin >> aff->a;
     }
-    
-    char* cryptedTxt = (char *)malloc(strlen(aff->txtToCrypt) + 1);
-    for (int i = 0; i < strlen(aff->txtToCrypt); i++)
+    int txtLen = strlen(aff->txtToCrypt);
+    char* cryptedTxt = (char *)malloc(sizeof(int) + txtLen + 1);
+    *(int*)cryptedTxt = txtLen;
+    char* dst = cryptedTxt + sizeof(int);
+    for (int i = 0; i < txtLen; i++)
     { 
-        int position=(int)(aff->txtToCrypt[i]);
-        char cryptedChar=(char)(((aff->a*position)+aff->b)%255);
-        cryptedTxt[i] = cryptedChar;
+        int position=(int)(unsigned char)(aff->txtToCrypt[i]);
+        dst[i]=(char)(((aff->a*position)+aff->b)%256);
     }
-    
-    cryptedTxt[strlen(aff->txtToCrypt)] = '\0';
+    dst[txtLen] = '\0';
     return cryptedTxt;
 }
-
 // Function to encrypt only the alphabetic characters in the text using the affine cipher
-
 char *affineCryptOnlyAlph(affine* aff) {
     while (gcd(aff->a,26)!=1)
     {
         cout << "a and 26 are not coprime. Please enter a different value for a: ";
         cin >> aff->a;
     }
-    
     char* cryptedTxt = (char *)malloc(strlen(aff->txtToCrypt) + 1);
     int position;
     bool isUpper=true;
     for (int i = 0; i < strlen(aff->txtToCrypt); i++)
     { 
-        if(aff->txtToCrypt[i] < 'A' || aff->txtToCrypt[i] > 'Z') {
+        if(aff->txtToCrypt[i] >= 'A' && aff->txtToCrypt[i] <= 'Z') {
             position = (aff->txtToCrypt[i]-'A');
-        }else if(aff->txtToCrypt[i] < 'a' || aff->txtToCrypt[i] > 'z') {
+            isUpper=true;
+        }else if(aff->txtToCrypt[i] >= 'a' && aff->txtToCrypt[i] <= 'z') {
             position = (aff->txtToCrypt[i]-'a');
             isUpper=false;
         }else {
-            cryptedTxt[0] = '\0';
-            return cryptedTxt;
+            // non-alpha: keep as-is
+            cryptedTxt[i] = aff->txtToCrypt[i];
+            continue;
         }
-        char cryptedChar=(char)(((aff->a*(position+(isUpper? 'A' : 'a')))+aff->b)%26+(isUpper? 'A' : 'a'));
+        char cryptedChar=(char)(((aff->a*position)+aff->b)%26+(isUpper? 'A' : 'a'));
         cryptedTxt[i] = cryptedChar;
     }
-    
     cryptedTxt[strlen(aff->txtToCrypt)] = '\0';
     return cryptedTxt;
 }
@@ -68,41 +64,75 @@ int modInv(int a, int m) {
     }
     return -1; 
 }
-
 // decrypting functions ::
-
-
 char *affineDecrypt(affineDecryptStr* decaff){
-    bool isDecryptable = (gcd(decaff->a, 255) == 1);
+    bool isDecryptable = (gcd(decaff->a, 256) == 1);
     if(!isDecryptable) {
         char* decryptedTxt = (char *)malloc(sizeof(char));
         decryptedTxt[0] = '\0';
         return decryptedTxt;
     }
-    int a_inv = modInv(decaff->a, 255);
-    char* decryptedTxt = (char *)malloc(strlen(decaff->txtToDecrypt) + 1);
-    for (int i = 0; i < strlen(decaff->txtToDecrypt); i++)
+    int a_inv = modInv(decaff->a, 256);
+    int len = *(int*)decaff->txtToDecrypt;
+    char* src = decaff->txtToDecrypt + sizeof(int);
+    char* decryptedTxt = (char *)malloc(len + 1);
+    for (int i = 0; i < len; i++)
     { 
-        int position=(int)(decaff->txtToDecrypt[i]);
-        char decryptedChar=(char)((a_inv*(position-decaff->b))%255);
-        decryptedTxt[i] = decryptedChar;
+        int position=(int)(unsigned char)(src[i]);
+        int val = (a_inv * (position - decaff->b)) % 256;
+        if(val < 0) val += 256;
+        decryptedTxt[i] = (char)val;
     }
-
+    decryptedTxt[len] = '\0';
     return decryptedTxt;
 }
 char *affineDecryptOnlyAlph(affineDecryptStr* decaff){
-    return nullptr;
+    bool isDecryptable = (gcd(decaff->a, 26) == 1);
+    if(!isDecryptable) {
+        char* decryptedTxt = (char *)malloc(sizeof(char));
+        decryptedTxt[0] = '\0';
+        return decryptedTxt;
+    }
+    int a_inv = modInv(decaff->a, 26);
+    char* decryptedTxt = (char *)malloc(strlen(decaff->txtToDecrypt) + 1);
+    bool isUpper=true;
+    for (int i = 0; i < strlen(decaff->txtToDecrypt); i++)
+    {
+        int position;
+        if(decaff->txtToDecrypt[i] >= 'A' && decaff->txtToDecrypt[i] <= 'Z') {
+            position = decaff->txtToDecrypt[i]-'A';
+            isUpper=true;
+        }else if(decaff->txtToDecrypt[i] >= 'a' && decaff->txtToDecrypt[i] <= 'z') {
+            position = decaff->txtToDecrypt[i]-'a';
+            isUpper=false;
+        }else {
+            // non-alpha: keep as-is
+            decryptedTxt[i] = decaff->txtToDecrypt[i];
+            continue;
+        }
+        char decryptedChar=(char)((a_inv*(position-decaff->b+26))%26+(isUpper? 'A' : 'a'));
+        decryptedTxt[i] = decryptedChar;
+    }
+    decryptedTxt[strlen(decaff->txtToDecrypt)] = '\0';
+    return decryptedTxt;
 }
-
 int main() {
     cout << "Hello, affine algo cryptage!" << endl;
     affine aff;
     char *cryptedTxt=(char *)malloc(sizeof(char));
     aff.txtToCrypt = (char*)"wailsaribey";
+    cout << "Text to encrypt and decrypt: " << aff.txtToCrypt << endl;
     aff.a = 5;
     aff.b = 8;
-    cryptedTxt = affineCryptOnlyAlph(&aff);
-    cout << "Crypted text: " << cryptedTxt << endl;
+    cryptedTxt = affineCrypt(&aff);
+    cout << "Crypted text: " << (cryptedTxt + sizeof(int)) << endl;
+    affineDecryptStr decaff;
+    decaff.txtToDecrypt = cryptedTxt;
+    decaff.a = aff.a;
+    decaff.b = aff.b;
+    char* decryptedTxt = affineDecrypt(&decaff);
+    cout << "Decrypted text: " << decryptedTxt << endl;
     free(cryptedTxt);
+    free(decryptedTxt);
     return 0;
 }
