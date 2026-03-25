@@ -18,3 +18,4 @@ char *affineDecrypt(affineDecryptStr* decaff);
 char *affineDecryptOnlyAlph(affineDecryptStr* decaff);
 int gcd(int a, int b);
 int modInv(int a, int m);
+void generateRandomKeys(int& a, int& b);
