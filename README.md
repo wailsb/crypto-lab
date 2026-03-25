@@ -57,6 +57,27 @@ Conditions :
 
 *(Les autres algorithmes seront ajoutés progressivement.)*
 
+## Attaques
+
+### Attaque sur le chiffrement de César (`pythonAttacks/cesarattack.py`)
+
+Script Python implémentant une attaque par force brute sur le chiffrement de César.
+Teste les 26 décalages possibles et affiche les textes déchiffrés correspondants.
+```bash
+python pythonAttacks/cesarattack.py
+```
+
+## Tests
+
+### Tests du chiffrement de César (`Tests/cesartest.cpp`)
+
+Fichier de tests unitaires en C++ vérifiant le comportement du chiffrement de César
+(chiffrement, déchiffrement, cas limites).
+```bash
+g++ Tests/cesartest.cpp -o cesartest
+./cesartest
+```
+
 ## Compilation
 
 ```bash
