@@ -9,12 +9,14 @@ import threading
 import hashlib
 import json
 import time
+import secrets
 from Crypto.Cipher import AES # type: ignore
 from Crypto.PublicKey import RSA, ECC # type: ignore
 from Crypto.Signature import DSS, pss # type: ignore
 from Crypto.Hash import SHA256 # type: ignore
 from Crypto.Random import get_random_bytes # type: ignore
 from Crypto.Util.Padding import pad, unpad # type: ignore
+from Crypto.Util.number import getPrime, inverse # type: ignore
 
 
 # ============================================

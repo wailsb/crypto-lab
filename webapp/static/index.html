@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Crypto Lab E2E Chat</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Crypto Lab - E2E Communication</h1>
+      <p class="subtitle">Confidentiality • Integrity • Authenticity via ECDH + AES-GCM + ECDSA</p>
+    </header>
+
+    <section class="panel">
+      <h2>Device Registration</h2>
+      <ol class="steps">
+        <li>Open this page on both devices.</li>
+        <li>Use <strong>https://&lt;server-ip&gt;:8443</strong> (accept the certificate warning).</li>
+        <li>Click <strong>Connect</strong> on each device.</li>
+      </ol>
+      <div class="row">
+        <input id="deviceName" placeholder="Device name" />
+        <button id="connectBtn">Connect</button>
+      </div>
+      <div id="deviceInfo" class="muted">Status: not connected</div>
+    </section>
+
+    <section class="panel">
+      <h2>Available Devices (Waiting Room)</h2>
+      <div class="muted">Only devices that clicked Connect will appear here.</div>
+      <ul id="deviceList" class="list"></ul>
+    </section>
+
+    <section class="panel">
+      <h2>Session Setup</h2>
+      <div class="row">
+        <select id="targetDevice"></select>
+        <select id="payloadAlgo">
+          <option value="none">None</option>
+          <option value="caesar">Caesar</option>
+          <option value="vigenere">Vigenere</option>
+          <option value="hill">Hill (2x2)</option>
+          <option value="otp">OTP</option>
+        </select>
+        <button id="startSessionBtn">Start Session</button>
+      </div>
+      <div id="sessionStatus" class="muted">Session status: idle</div>
+      <div id="payloadKeyConfig" class="muted"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Chat</h2>
+      <div class="muted">You must start a session before sending messages.</div>
+      <div id="chat" class="chat"></div>
+      <div class="row">
+        <input id="messageInput" placeholder="Type a message" />
+        <button id="sendBtn">Send</button>
+      </div>
+      <div class="muted">Classic algorithms are layered inside the secure channel for demo compatibility.</div>
+    </section>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
